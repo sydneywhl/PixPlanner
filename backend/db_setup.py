@@ -21,11 +21,13 @@ def init_db():
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS note_group(
             note_group_id integer PRIMARY KEY AUTOINCREMENT,
-            note_group_type text not null,
             note_group_name text not null,
+            note_group_type text not null,
             note_group_categories text,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            modified_at TIMESTAMP DEFAULT NULL
+            modified_at TIMESTAMP DEFAULT NULL,
+            is_deleted integer not null,
+            deleted_at TIMESTAMP DEFAULT NULL
         )
     """)
 
@@ -40,22 +42,35 @@ def init_db():
             remind_at TIMESTAMP DEFAULT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             modified_at TIMESTAMP DEFAULT NULL,
-            is_deleted integer not null
+            is_deleted integer not null,
+            deleted_at TIMESTAMP DEFAULT NULL,
+            note_group_id integer,
+            
+            foreign key(note_group_id) references note_group(note_group_id)
         )
     """)
 
     # TRASHED_NOTE GROUP: GROUPS STICKY NOTES INTO STICKY PAD AND NOTE PAGE INTO NOTE BOOKS
+    #cursor.execute("""
+    #    CREATE TABLE IF NOT EXISTS trashed_note_group(
+    #        note_group_id integer PRIMARY KEY AUTOINCREMENT,
+    #        note_group_type text not null,
+    #       note_group_name text not null,
+    #        note_group_categories text,
+    #        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    #        modified_at TIMESTAMP DEFAULT NULL
+    #    )
+    #""")
+
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS trashed_note_group(
-            note_group_id integer PRIMARY KEY AUTOINCREMENT,
-            note_group_type text not null,
-            note_group_name text not null,
-            note_group_categories text,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            modified_at TIMESTAMP DEFAULT NULL
+        CREATE TABLE IF NOT EXISTS settings(
+            setting_id integer PRIMARY KEY AUTOINCREMENT,
+            setting_key text not null,
+            setting_value text not null,
+            user_id integer,
+            foreign key(user_id) references users(user_id)
         )
     """)
-
 
     #cursor.execute("""
         #CREATE TABLE IF NOT EXISTS remind_note(
@@ -66,20 +81,7 @@ def init_db():
     conn.commit()
     conn.close()
 
-def update_db():
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("alter table note add column is_deleted integer default 0")
-
-    cursor.execute("drop table trashed_note")
-
-    conn.commit()
-    conn.close()
-
 
 if __name__ == "__main__":
-    #init_db()
-    #print("Database initialized.")
-
-    update_db()
-    print("database updated")
+    init_db()
+    print("Database initialized.")

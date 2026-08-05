@@ -124,7 +124,6 @@ def launch_app():
 
 
 
-
     # display the sidebar on the mainFrame
     display_sidebar(mainFrame, on_nav=display_page)
 
